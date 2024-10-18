@@ -7,6 +7,9 @@ import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import AppLoadScreen from "./pages/AppLoadScreen";
 import SignUp from "./pages/SignUp";
+import LockOut from "./components/LockOut/LockOut";
+
+import ProtectedRoute from "./components/Protected/ProtectedRoute";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -35,7 +38,22 @@ function App() {
         <Routes>
           <Route path="/" element={<SignIn user={user} />} />
           <Route path="/SignUp" element={<SignUp user={user} />} />
-          <Route path="/Home" element={<Home />} />
+          <Route
+            path="/Home"
+            element={
+              <ProtectedRoute user={user}>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lockout"
+            element={
+              <ProtectedRoute user={user}>
+                <LockOut />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </div>

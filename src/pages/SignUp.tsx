@@ -48,7 +48,8 @@ function SignUp({ user }: SignUpProps) {
         });
       })
       .catch((error) => {
-        setErrorMessage(error.message);
+        setErrorMessage("Netwok failed");
+        console.log("errorMessage", error.message);
         console.error(error.code, error.message);
       });
   };

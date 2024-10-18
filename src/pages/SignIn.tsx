@@ -36,6 +36,7 @@ function SignIn({ user }: SignInProps) {
       .catch((error) => {
         setBadpe(true);
         setBadpeErrorMessage("Enter correct information");
+        console.log("badpeErrorMessage", badpeErrorMessage);
         console.error(error.code, error.message);
       });
   };
