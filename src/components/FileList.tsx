@@ -4,6 +4,7 @@ import { storage } from "../firebase/firebaseConfig";
 import DeleteFile from "./ActionListFile/DeleteFile";
 import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
+import Navbar from "../components/Navbar";
 
 interface FileDetails {
   name: string;
@@ -101,51 +102,53 @@ const FileList = () => {
   return (
     <section>
       <h3 className="text-lg font-bold mb-4">Uploaded Files</h3>
+      <div className="flex flex-rows  xs:flex-col">
+        <Navbar />
+        <div className="grid grid-cols-1 mt-20  sm:grid-cols-2 sm:ml-40 lg:ml-40 lg:grid-cols-4 gap-6 border border-gray-400">
+          {files.length > 0 ? (
+            files.map((file) => (
+              <li key={file.name} className="list-none">
+                <div className="bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow">
+                  <div className="flex flex-col items-center">
+                    {/* Prévisualisation du fichier */}
+                    <div className="mb-4 w-full h-32">
+                      {renderFilePreview(file)}
+                    </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 border border-gray-400">
-        {files.length > 0 ? (
-          files.map((file) => (
-            <li key={file.name} className="list-none">
-              <div className="bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow">
-                <div className="flex flex-col items-center">
-                  {/* Prévisualisation du fichier */}
-                  <div className="mb-4 w-full h-32">
-                    {renderFilePreview(file)}
-                  </div>
+                    {/* Nom du fichier */}
+                    <div className="flex flex-rows space-x-2 text-center ">
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        {/*{file.name}*/}
+                        View
+                      </a>
+                      <p className="text-gray-500">Type: {file.type}</p>
+                    </div>
 
-                  {/* Nom du fichier */}
-                  <div className="flex flex-rows space-x-2 text-center ">
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline"
-                    >
-                      {/*{file.name}*/}
-                      View
-                    </a>
-                    <p className="text-gray-500">Type: {file.type}</p>
-                  </div>
-
-                  {/* Actions (Téléchargement et suppression) */}
-                  <div className="flex space-x-4 mt-4">
-                    <DownloadFile
-                      fileUrl={file.url}
-                      fileName={file.name}
-                      fileExtension={file.extension}
-                    />
-                    <DeleteFile
-                      fileName={file.name}
-                      onDelete={handleFileDelete}
-                    />
+                    {/* Actions (Téléchargement et suppression) */}
+                    <div className="flex space-x-4 mt-4">
+                      <DownloadFile
+                        fileUrl={file.url}
+                        fileName={file.name}
+                        fileExtension={file.extension}
+                      />
+                      <DeleteFile
+                        fileName={file.name}
+                        onDelete={handleFileDelete}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          ))
-        ) : (
-          <p>No files uploaded yet.</p>
-        )}
+              </li>
+            ))
+          ) : (
+            <p>No files uploaded yet.</p>
+          )}
+        </div>
       </div>
     </section>
   );
