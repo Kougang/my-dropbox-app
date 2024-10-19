@@ -104,7 +104,7 @@ const FileList = () => {
       <h3 className="text-lg font-bold mb-4">Uploaded Files</h3>
       <div className="flex flex-rows  xs:flex-col">
         <Navbar />
-        <div className="grid grid-cols-1 mt-20  sm:grid-cols-2 sm:ml-40 lg:ml-40 lg:grid-cols-4 gap-6 border border-gray-400">
+        <div className="grid xs:grid-cols-1 xs:mt-20  sm:grid-cols-2 sm:ml-40 lg:ml-40 lg:grid-cols-4 gap-6 border border-gray-400">
           {files.length > 0 ? (
             files.map((file) => (
               <li key={file.name} className="list-none">
