@@ -10,6 +10,8 @@ import SignUp from "./pages/SignUp";
 import LockOut from "./components/LockOut/LockOut";
 
 import ProtectedRoute from "./components/Protected/ProtectedRoute";
+import FileUploader from "./components/FileUploader";
+import FileList from "./components/FileList";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -51,6 +53,22 @@ function App() {
             element={
               <ProtectedRoute user={user}>
                 <LockOut />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/upload"
+            element={
+              <ProtectedRoute user={user}>
+                <FileUploader />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/listfile"
+            element={
+              <ProtectedRoute user={user}>
+                <FileList />
               </ProtectedRoute>
             }
           />
