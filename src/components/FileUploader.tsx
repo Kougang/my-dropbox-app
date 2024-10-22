@@ -67,7 +67,7 @@ function FileUploader() {
       {error && <p className="text-red-500">{error}</p>}
       <button
         onClick={handleUpload}
-        className="bg-blue-600 text-white py-1 px-1 w-full"
+        className="bg-blue-700 text-white py-1 px-1 w-full hover:bg-blue-500"
         disabled={uploading}
       >
         {uploading ? `Uploading (${progress}%)...` : "Upload"}

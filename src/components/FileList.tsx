@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  ref,
+  listAll,
+  getDownloadURL,
+  getMetadata,
+  deleteObject,
+  uploadBytes,
+} from "firebase/storage";
 import { storage } from "../firebase/firebaseConfig";
 import { getAuth, User } from "firebase/auth"; // Import Firebase Auth et User type
 import DeleteFile from "./ActionListFile/DeleteFile";
 import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
 import Navbar from "../components/Navbar";
+import RenameFile from "./RenameFile";
 
 interface FileDetails {
   name: string;
@@ -20,15 +28,19 @@ const FileList = () => {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [showNavbar, setShowNavbar] = useState<boolean>(false); // Nouvel état pour gérer l'affichage du Navbar
+  const [showNavbar, setShowNavbar] = useState<boolean>(false);
+  const navbarRef = useRef<HTMLDivElement>(null);
+
+  const [showRenameModal, setShowRenameModal] = useState<boolean>(false); // État pour afficher la fenêtre de renommage
+  const [fileToRename, setFileToRename] = useState<FileDetails | null>(null); // Stocke le fichier à renommer
 
   useEffect(() => {
-    const auth = getAuth(); // Obtenir l'instance d'authentification Firebase
-    const user = auth.currentUser; // Obtenir l'utilisateur connecté
-    setCurrentUser(user); // On garde user tel quel
+    const auth = getAuth();
+    const user = auth.currentUser;
+    setCurrentUser(user);
     if (user) {
-      setUserId(user.uid); // Assurez-vous que user n'est pas null avant d'accéder à uid
-      fetchFiles(user.uid); // Passez user.uid à fetchFiles
+      setUserId(user.uid);
+      fetchFiles(user.uid);
     }
   }, []);
 
@@ -37,10 +49,10 @@ const FileList = () => {
     setError(null);
 
     // Référence au dossier de l'utilisateur actuel
-    const storageRef = ref(storage, `uploads/${uid}/`);
+    const storageRefInstance = ref(storage, `uploads/${uid}/`);
 
     try {
-      const result = await listAll(storageRef);
+      const result = await listAll(storageRefInstance);
       const filePromises = result.items.map(async (fileRef) => {
         const url = await getDownloadURL(fileRef);
         const metadata = await getMetadata(fileRef);
@@ -65,7 +77,60 @@ const FileList = () => {
     }
   };
 
-  // Fonction de rendu pour les prévisualisations
+  // Fonction pour fermer le Navbar en cas de clic en dehors
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      navbarRef.current &&
+      !navbarRef.current.contains(event.target as Node)
+    ) {
+      setShowNavbar(false); // Cacher le Navbar si on clique en dehors
+    }
+  };
+
+  useEffect(() => {
+    // Ajouter l'événement pour détecter les clics en dehors du Navbar
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      // Nettoyer l'événement pour éviter les fuites de mémoire
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleRenameClick = (file: FileDetails) => {
+    setFileToRename(file); // Définit le fichier à renommer
+    setShowRenameModal(true); // Affiche la fenêtre de renommage
+  };
+
+  const handleRename = async (newName: string) => {
+    if (!fileToRename || !userId) return;
+
+    const oldFileRef = ref(storage, `uploads/${userId}/${fileToRename.name}`);
+    const newFileRef = ref(
+      storage,
+      `uploads/${userId}/${newName}.${fileToRename.extension}`
+    );
+
+    try {
+      // Télécharger le fichier ancien en tant que blob
+      const url = await getDownloadURL(oldFileRef);
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Télécharger le blob sous le nouveau nom
+      await uploadBytes(newFileRef, blob);
+
+      // Supprimer l'ancien fichier
+      await deleteObject(oldFileRef);
+
+      // Recharger les fichiers
+      await fetchFiles(userId);
+      setShowRenameModal(false);
+    } catch (error) {
+      console.error("Error renaming file:", error);
+    }
+  };
+
   const renderFilePreview = (file: FileDetails) => {
     const mimeType = file.type;
 
@@ -107,17 +172,22 @@ const FileList = () => {
 
   return (
     <section className="">
-      <h3 className="text-lg font-bold ">Uploaded Files</h3>
+      <h3 className="text-lg font-bold text-center">Uploaded Files</h3>
 
       {/* Trois barres horizontales en haut à gauche */}
       <button
         onClick={() => setShowNavbar(!showNavbar)}
-        className="text-2xl       mb-2"
+        className="text-2xl mb-2"
       >
-        &#9776; {/* Symbole de hamburger */}
+        &#9776;
       </button>
 
-      {showNavbar && <Navbar />}
+      {showNavbar && (
+        <div ref={navbarRef}>
+          {" "}
+          <Navbar />
+        </div>
+      )}
 
       <div className="flex flex-rows xs:flex-col">
         <div className="grid xs:grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-6 border border-gray-400">
@@ -132,7 +202,7 @@ const FileList = () => {
                     </div>
 
                     {/* Nom du fichier */}
-                    <div className="flex flex-rows space-x-2 text-center ">
+                    <div className="flex flex-rows space-x-2 text-center">
                       <a
                         href={file.url}
                         target="_blank"
@@ -145,12 +215,18 @@ const FileList = () => {
                     </div>
 
                     {/* Actions (Téléchargement et suppression) */}
-                    <div className="flex space-x-4 mt-4">
+                    <div className="flex space-x-2 mt-4">
                       <DownloadFile
                         fileUrl={file.url}
                         fileName={file.name}
                         fileExtension={file.extension}
                       />
+                      <button
+                        onClick={() => handleRenameClick(file)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded"
+                      >
+                        Rename
+                      </button>
                       {userId && (
                         <DeleteFile
                           fileName={file.name}
@@ -168,6 +244,13 @@ const FileList = () => {
           )}
         </div>
       </div>
+      {showRenameModal && fileToRename && (
+        <RenameFile
+          currentName={fileToRename.name}
+          onRename={handleRename}
+          onCancel={() => setShowRenameModal(false)}
+        />
+      )}
     </section>
   );
 };
