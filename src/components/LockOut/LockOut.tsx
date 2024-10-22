@@ -15,11 +15,12 @@ function LockOut() {
   };
 
   return (
-    <section className="flex items-center justify-center">
+    <section className="flex flex-col items-center justify-center">
+      <div>SIGN OUT</div>
       <div>
         <button
           onClick={handleSignOut}
-          className="bg-red-900 px-6 py-3 text-white rounded hover:bg-red-700"
+          className="w-60 xs:w-40 bg-red-900 px-1 py-1 text-white  hover:bg-red-700 "
         >
           Sign Out
         </button>

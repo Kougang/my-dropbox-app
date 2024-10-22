@@ -20,6 +20,7 @@ const FileList = () => {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showNavbar, setShowNavbar] = useState<boolean>(false); // Nouvel état pour gérer l'affichage du Navbar
 
   useEffect(() => {
     const auth = getAuth(); // Obtenir l'instance d'authentification Firebase
@@ -105,11 +106,21 @@ const FileList = () => {
   }
 
   return (
-    <section>
-      <h3 className="text-lg font-bold mb-4">Uploaded Files</h3>
-      <div className="flex flex-rows  xs:flex-col">
-        <Navbar />
-        <div className="grid xs:grid-cols-1 xs:mt-20  sm:grid-cols-2 sm:ml-40 lg:ml-40 lg:grid-cols-4 gap-6 border border-gray-400">
+    <section className="">
+      <h3 className="text-lg font-bold ">Uploaded Files</h3>
+
+      {/* Trois barres horizontales en haut à gauche */}
+      <button
+        onClick={() => setShowNavbar(!showNavbar)}
+        className="text-2xl       mb-2"
+      >
+        &#9776; {/* Symbole de hamburger */}
+      </button>
+
+      {showNavbar && <Navbar />}
+
+      <div className="flex flex-rows xs:flex-col">
+        <div className="grid xs:grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-6 border border-gray-400">
           {files.length > 0 ? (
             files.map((file) => (
               <li key={file.name} className="list-none">

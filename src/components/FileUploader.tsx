@@ -15,6 +15,7 @@ function FileUploader() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
+      setError("");
     }
   };
 
@@ -59,13 +60,14 @@ function FileUploader() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <input type="file" onChange={handleFileChange} />
-      {file && <p>Selected file: {file.name}</p>}
+    <div className="flex flex-col items-center ">
+      <div>UPLOAD FILES</div>
+      <input type="file" onChange={handleFileChange} className="w-60 xs:w-40" />
+      {file && <p className="text-green-500">File Selected </p>}
       {error && <p className="text-red-500">{error}</p>}
       <button
         onClick={handleUpload}
-        className="bg-blue-600 text-white py-2 px-4 rounded"
+        className="bg-blue-600 text-white py-1 px-1 w-full"
         disabled={uploading}
       >
         {uploading ? `Uploading (${progress}%)...` : "Upload"}

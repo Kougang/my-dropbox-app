@@ -3,9 +3,8 @@ import FileList from "../components/FileList";
 
 function Home() {
   return (
-    <main>
-      
-        <FileList />
+    <main className="ml-4 mr-4">
+      <FileList />
     </main>
   );
 }
