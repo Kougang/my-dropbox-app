@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { storage } from "../firebase/firebaseConfig"; // Assurez-vous que Firebase est bien configuré
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { getAuth } from "firebase/auth"; // Import Firebase Auth
 
 function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const auth = getAuth(); // Obtenir l'instance d'authentification Firebase
+  const currentUser = auth.currentUser; // Obtenir l'utilisateur connecté
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -20,10 +24,16 @@ function FileUploader() {
       return;
     }
 
+    if (!currentUser) {
+      setError("You need to be logged in to upload files.");
+      return;
+    }
+
     setUploading(true);
     setError(null);
 
-    const storageRef = ref(storage, `uploads/${file.name}`);
+    // Utilisez l'UID de l'utilisateur dans le chemin du fichier
+    const storageRef = ref(storage, `uploads/${currentUser.uid}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -41,7 +51,6 @@ function FileUploader() {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          //   console.log("File available at", downloadURL);
           setUploading(false);
           setFile(null); // Réinitialiser l'état après l'upload
         });

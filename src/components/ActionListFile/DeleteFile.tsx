@@ -5,11 +5,16 @@ import { storage } from "../../firebase/firebaseConfig";
 interface DeleteFileProps {
   fileName: string;
   onDelete: () => void; // Callback pour rafraîchir la liste après suppression
+  userId: string;
 }
 
-const DeleteFile: React.FC<DeleteFileProps> = ({ fileName, onDelete }) => {
+const DeleteFile: React.FC<DeleteFileProps> = ({
+  fileName,
+  onDelete,
+  userId,
+}) => {
   const handleDelete = async () => {
-    const fileRef = ref(storage, `uploads/${fileName}`);
+    const fileRef = ref(storage, `uploads/${userId}/${fileName}`);
 
     try {
       await deleteObject(fileRef);

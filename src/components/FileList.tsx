@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "../firebase/firebaseConfig";
+import { getAuth, User } from "firebase/auth"; // Import Firebase Auth et User type
 import DeleteFile from "./ActionListFile/DeleteFile";
 import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
@@ -10,19 +11,32 @@ interface FileDetails {
   name: string;
   url: string;
   type: string;
-  extension: string; // Ajoutez l'extension ici
+  extension: string;
 }
 
 const FileList = () => {
   const [files, setFiles] = useState<FileDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const fetchFiles = async () => {
+  useEffect(() => {
+    const auth = getAuth(); // Obtenir l'instance d'authentification Firebase
+    const user = auth.currentUser; // Obtenir l'utilisateur connecté
+    setCurrentUser(user); // On garde user tel quel
+    if (user) {
+      setUserId(user.uid); // Assurez-vous que user n'est pas null avant d'accéder à uid
+      fetchFiles(user.uid); // Passez user.uid à fetchFiles
+    }
+  }, []);
+
+  const fetchFiles = async (uid: string) => {
     setLoading(true);
     setError(null);
 
-    const storageRef = ref(storage, "uploads/");
+    // Référence au dossier de l'utilisateur actuel
+    const storageRef = ref(storage, `uploads/${uid}/`);
 
     try {
       const result = await listAll(storageRef);
@@ -30,14 +44,13 @@ const FileList = () => {
         const url = await getDownloadURL(fileRef);
         const metadata = await getMetadata(fileRef);
 
-        // Extraire l'extension du fichier
         const extension = fileRef.name.split(".").pop() || "unknown";
 
         return {
           name: fileRef.name,
           url,
           type: metadata.contentType || "unknown",
-          extension, // Incluez l'extension ici
+          extension,
         };
       });
 
@@ -51,15 +64,7 @@ const FileList = () => {
     }
   };
 
-  useEffect(() => {
-    fetchFiles();
-  }, []);
-
-  const handleFileDelete = () => {
-    // Rafraîchit la liste des fichiers après suppression
-    fetchFiles();
-  };
-
+  // Fonction de rendu pour les prévisualisations
   const renderFilePreview = (file: FileDetails) => {
     const mimeType = file.type;
 
@@ -123,7 +128,6 @@ const FileList = () => {
                         rel="noopener noreferrer"
                         className="text-blue-600 underline"
                       >
-                        {/*{file.name}*/}
                         View
                       </a>
                       <p className="text-gray-500">Type: {file.type}</p>
@@ -136,10 +140,13 @@ const FileList = () => {
                         fileName={file.name}
                         fileExtension={file.extension}
                       />
-                      <DeleteFile
-                        fileName={file.name}
-                        onDelete={handleFileDelete}
-                      />
+                      {userId && (
+                        <DeleteFile
+                          fileName={file.name}
+                          onDelete={() => fetchFiles(userId)} // Assurez-vous que userId est non null
+                          userId={userId}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
