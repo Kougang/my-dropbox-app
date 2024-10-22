@@ -21,7 +21,7 @@ const RenameFile: React.FC<RenameFileProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-80 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg">
         <h2 className="text-xl font-semibold mb-4">Rename File</h2>
         <input

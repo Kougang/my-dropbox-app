@@ -8,7 +8,7 @@ import {
   uploadBytes,
 } from "firebase/storage";
 import { storage } from "../firebase/firebaseConfig";
-import { getAuth, User } from "firebase/auth"; // Import Firebase Auth et User type
+import { getAuth, User } from "firebase/auth";
 import DeleteFile from "./ActionListFile/DeleteFile";
 import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
@@ -77,26 +77,6 @@ const FileList = () => {
     }
   };
 
-  // Fonction pour fermer le Navbar en cas de clic en dehors
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      navbarRef.current &&
-      !navbarRef.current.contains(event.target as Node)
-    ) {
-      setShowNavbar(false); // Cacher le Navbar si on clique en dehors
-    }
-  };
-
-  useEffect(() => {
-    // Ajouter l'événement pour détecter les clics en dehors du Navbar
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      // Nettoyer l'événement pour éviter les fuites de mémoire
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const handleRenameClick = (file: FileDetails) => {
     setFileToRename(file); // Définit le fichier à renommer
     setShowRenameModal(true); // Affiche la fenêtre de renommage
@@ -112,12 +92,24 @@ const FileList = () => {
     );
 
     try {
-      // Télécharger le fichier ancien en tant que blob
+      // Vérifier si le fichier avec le même nom existe déjà
+      const newFileExists = await getDownloadURL(newFileRef).catch((error) => {
+        // Si une erreur est levée, cela signifie que le fichier n'existe pas
+        return false;
+      });
+
+      if (newFileExists) {
+        console.error("A file with this name already exists.");
+        setError("A file with this name already exists.");
+        return;
+      }
+
+      // Obtenir l'URL du fichier ancien
       const url = await getDownloadURL(oldFileRef);
+
+      // Télécharger le fichier avec le nouveau nom
       const response = await fetch(url);
       const blob = await response.blob();
-
-      // Télécharger le blob sous le nouveau nom
       await uploadBytes(newFileRef, blob);
 
       // Supprimer l'ancien fichier
@@ -128,6 +120,7 @@ const FileList = () => {
       setShowRenameModal(false);
     } catch (error) {
       console.error("Error renaming file:", error);
+      setError("Failed to rename the file. Please try again.");
     }
   };
 

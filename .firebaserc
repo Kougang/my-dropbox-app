@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "firebase storage:bucket:set-cors cors.json": "my-dropbox-app-30892"
+  },
+  "targets": {},
+  "etags": {}
+}
