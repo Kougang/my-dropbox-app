@@ -54,10 +54,10 @@ function SignIn({ user }: SignInProps) {
   };
 
   return (
-    <section className="flex items-center justify-center">
-      <div className="w-full h-screen bg-slate-900 border border-white w-2/5 p-6 flex flex-col items-center">
+    <section className="min-h-screen flex items-center justify-center bg-slate-900">
+      <div className="w-full max-w-md p-6 flex flex-col items-center">
         <form
-          className="flex flex-col gap-2 bg-slate-50 p-5 rounded shadow-md"
+          className="flex flex-col gap-2 bg-slate-50 p-5 rounded shadow-md w-full"
           onSubmit={handleSignIn}
         >
           <h1 className="text-center text-slate-900 text-4xl mb-3">Sign In</h1>
@@ -67,24 +67,24 @@ function SignIn({ user }: SignInProps) {
             type="email"
             onChange={(e) => setEmail(e.target.value)}
             name="email"
-            className="h-10 border border-slate-900 rounded p-4"
+            className="h-10 border border-slate-900 rounded p-4 w-full"
             required
           />
 
           <label className="text-slate-900">Password</label>
-          <div className="xs:flex">
+          <div className="flex items-center">
             <input
               type={showPassword ? "text" : "password"}
               onChange={(e) => setPassword(e.target.value)}
               name="password"
-              className="h-10 w-auto border border-slate-900 rounded p-4"
+              className="h-10 w-full border border-slate-900 rounded p-4"
               required
             />
             <span
               role="img"
               aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={handleEyes}
-              className="xs:mt-2"
+              className="ml-2 cursor-pointer"
             >
               {showPassword ? "👁️" : "👁️‍🗨️"}
             </span>
