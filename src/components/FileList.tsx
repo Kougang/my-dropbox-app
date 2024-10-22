@@ -201,7 +201,7 @@ const FileList = () => {
       )}
 
       <div className="flex flex-rows xs:flex-col">
-        <div className="grid xs:grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-6 border border-gray-400">
+        <div className="grid xs:grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-6 ">
           {files.length > 0 ? (
             files.map((file) => (
               <li key={file.name} className="list-none">

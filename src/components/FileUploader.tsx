@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { storage } from "../firebase/firebaseConfig"; // Assurez-vous que Firebase est bien configuré
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { getAuth } from "firebase/auth"; // Import Firebase Auth
+import { getAuth } from "firebase/auth";
+import { Navigate } from "react-router-dom";
 
 function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
@@ -58,6 +59,11 @@ function FileUploader() {
       }
     );
   };
+
+  if (progress == 100) {
+    console.log("refresh page");
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex flex-col items-center ">
