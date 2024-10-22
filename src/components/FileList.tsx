@@ -82,6 +82,24 @@ const FileList = () => {
     setShowRenameModal(true); // Affiche la fenêtre de renommage
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      navbarRef.current &&
+      !navbarRef.current.contains(event.target as Node)
+    ) {
+      setShowNavbar(false); // Cacher le Navbar si on clique en dehors
+    }
+  };
+
+  useEffect(() => {
+    // Ajouter l'événement pour détecter les clics en dehors du Navbar
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Nettoyer l'événement pour éviter les fuites de mémoire
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleRename = async (newName: string) => {
     if (!fileToRename || !userId) return;
 
@@ -93,6 +111,7 @@ const FileList = () => {
 
     try {
       // Vérifier si le fichier avec le même nom existe déjà
+
       const newFileExists = await getDownloadURL(newFileRef).catch((error) => {
         // Si une erreur est levée, cela signifie que le fichier n'existe pas
         return false;
@@ -177,7 +196,6 @@ const FileList = () => {
 
       {showNavbar && (
         <div ref={navbarRef}>
-          {" "}
           <Navbar />
         </div>
       )}
