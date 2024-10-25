@@ -16,7 +16,6 @@ function LockOut() {
 
   return (
     <section className="flex flex-col items-center justify-center">
-      <div>SIGN OUT</div>
       <div>
         <button
           onClick={handleSignOut}
