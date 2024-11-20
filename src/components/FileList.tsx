@@ -14,6 +14,7 @@ import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
 import Navbar from "../components/Navbar";
 import RenameFile from "./RenameFile";
+import CreateFolder from "./CreateFolder";
 
 interface FileDetails {
   name: string;
@@ -33,15 +34,13 @@ const FileList = () => {
 
   const [showRenameModal, setShowRenameModal] = useState<boolean>(false); // État pour afficher la fenêtre de renommage
   const [fileToRename, setFileToRename] = useState<FileDetails | null>(null); // Stocke le fichier à renommer
+  const [currentPath, setCurrentPath] = useState<string>("uploads"); // Par défaut, dans le dossier principal
+  const [showCreateFolderModal, setShowCreateFolderModal] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
-    // setCurrentUser(user);
-    // if (user) {
-    //   setUserId(user.uid);
-    //   fetchFiles(user.uid);
-    // }
     if (user) {
       setUserId(user.uid);
       setCurrentUser(user);
@@ -53,9 +52,7 @@ const FileList = () => {
     setLoading(true);
     setError(null);
 
-    // Référence au dossier de l'utilisateur actuel
-    const storageRefInstance = ref(storage, `uploads/${uid}/`);
-
+    const storageRefInstance = ref(storage, `${currentPath}/${uid}/`);
     try {
       const result = await listAll(storageRefInstance);
       const filePromises = result.items.map(async (fileRef) => {
@@ -81,6 +78,39 @@ const FileList = () => {
       setLoading(false);
     }
   };
+
+  // const fetchFiles = async (uid: string) => {
+  //   setLoading(true);
+  //   setError(null);
+
+  //   // Référence au dossier de l'utilisateur actuel
+  //   const storageRefInstance = ref(storage, `uploads/${uid}/`);
+
+  //   try {
+  //     const result = await listAll(storageRefInstance);
+  //     const filePromises = result.items.map(async (fileRef) => {
+  //       const url = await getDownloadURL(fileRef);
+  //       const metadata = await getMetadata(fileRef);
+
+  //       const extension = fileRef.name.split(".").pop() || "unknown";
+
+  //       return {
+  //         name: fileRef.name,
+  //         url,
+  //         type: metadata.contentType || "unknown",
+  //         extension,
+  //       };
+  //     });
+
+  //     const files = await Promise.all(filePromises);
+  //     setFiles(files);
+  //   } catch (error) {
+  //     console.error("Error fetching files:", error);
+  //     setError("Failed to load files.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleRenameClick = (file: FileDetails) => {
     setFileToRename(file); // Définit le fichier à renommer
@@ -209,6 +239,25 @@ const FileList = () => {
         <div ref={navbarRef}>
           <Navbar />
         </div>
+      )}
+
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={() => setShowCreateFolderModal(true)}
+          className="btn btn-primary"
+        >
+          + Create Folder
+        </button>
+      </div>
+
+      {showCreateFolderModal && (
+        <CreateFolder
+          currentPath={currentPath}
+          onFolderCreated={() => {
+            setShowCreateFolderModal(false);
+            fetchFiles(userId!); // Recharge les fichiers
+          }}
+        />
       )}
 
       <div className="flex flex-rows xs:flex-col">
