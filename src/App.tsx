@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import AppLoadScreen from "./pages/AppLoadScreen";
 import SignUp from "./pages/SignUp";
+import ProfilePage from "./pages/ProfilePage";
 import LockOut from "./components/LockOut/LockOut";
 
 import ProtectedRoute from "./components/Protected/ProtectedRoute";
@@ -69,6 +70,14 @@ function App() {
             element={
               <ProtectedRoute user={user}>
                 <FileList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute user={user}>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

@@ -10,8 +10,8 @@ function FileUploader() {
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const auth = getAuth(); // Obtenir l'instance d'authentification Firebase
-  const currentUser = auth.currentUser; // Obtenir l'utilisateur connecté
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -61,7 +61,6 @@ function FileUploader() {
   };
 
   if (progress == 100) {
-    console.log("refresh page");
     return <Navigate to="/" replace />;
   }
 

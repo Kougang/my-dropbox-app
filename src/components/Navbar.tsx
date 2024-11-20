@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; // Importer Link pour la navigation
 import LockOut from "./LockOut/LockOut";
 import FileUploader from "./FileUploader";
 
@@ -20,7 +21,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="w-70 border   absolute bg-slate-600">
+    <nav className="w-70 border absolute bg-slate-600">
       <div className="min-w-40 hover:bg-slate-500 text-center">
         <button onClick={showFileUploader} className="w-40 hover:bg-slate-500">
           Upload Files
@@ -44,6 +45,13 @@ function Navbar() {
             <li>Call: +237 682227197</li>
           </ul>
         )}
+        <hr />
+      </div>
+
+      <div className="min-w-40 hover:bg-slate-500 text-center">
+        <Link to="/profile" className="w-40 hover:bg-slate-500">
+          Profile Page
+        </Link>
         <hr />
       </div>
 
