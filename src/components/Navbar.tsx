@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Importer Link pour la navigation
+import { Link } from "react-router-dom";
 import LockOut from "./LockOut/LockOut";
 import FileUploader from "./FileUploader";
 
