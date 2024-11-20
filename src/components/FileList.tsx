@@ -37,9 +37,14 @@ const FileList = () => {
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
-    setCurrentUser(user);
+    // setCurrentUser(user);
+    // if (user) {
+    //   setUserId(user.uid);
+    //   fetchFiles(user.uid);
+    // }
     if (user) {
       setUserId(user.uid);
+      setCurrentUser(user);
       fetchFiles(user.uid);
     }
   }, []);
@@ -184,6 +189,12 @@ const FileList = () => {
 
   return (
     <section className="">
+      {currentUser && (
+        <p className="text-xl font-semibold text-gray-800 text-center">
+          {`Welcome, ${currentUser.displayName || "User"}`}
+        </p>
+      )}
+
       <h3 className="text-lg font-bold text-center">Uploaded Files</h3>
 
       {/* Trois barres horizontales en haut à gauche */}
