@@ -16,11 +16,12 @@ import Navbar from "../components/Navbar";
 import RenameFile from "./RenameFile";
 import CreateFolder from "./CreateFolder";
 
-interface FileDetails {
+export interface FileDetails {
   name: string;
   url: string;
   type: string;
   extension: string;
+  isFolder: boolean;
 }
 
 const FileList = () => {
@@ -37,6 +38,7 @@ const FileList = () => {
   const [currentPath, setCurrentPath] = useState<string>("uploads"); // Par défaut, dans le dossier principal
   const [showCreateFolderModal, setShowCreateFolderModal] =
     useState<boolean>(false);
+  const [folder, setFolder] = useState<boolean>(false);
 
   useEffect(() => {
     const auth = getAuth();
@@ -53,8 +55,12 @@ const FileList = () => {
     setError(null);
 
     const storageRefInstance = ref(storage, `${currentPath}/${uid}/`);
+    // console.log("${currentPath}/${uid}/", currentPath, uid);
+
     try {
       const result = await listAll(storageRefInstance);
+
+      // Récupération des fichiers
       const filePromises = result.items.map(async (fileRef) => {
         const url = await getDownloadURL(fileRef);
         const metadata = await getMetadata(fileRef);
@@ -66,11 +72,33 @@ const FileList = () => {
           url,
           type: metadata.contentType || "unknown",
           extension,
+          isFolder: false,
         };
       });
 
-      const files = await Promise.all(filePromises);
-      setFiles(files);
+      // Récupération des dossiers en vérifiant leur contenu
+      const folderPromises = result.prefixes.map(async (folderRef) => {
+        // Tester si le dossier contient un fichier factice ou non
+        const subFolderRef = ref(storage, folderRef.fullPath);
+        const folderContent = await listAll(subFolderRef);
+        setFolder(true);
+
+        return {
+          name: folderRef.name,
+          url: "", // Les dossiers n'ont pas d'URL
+          type: "folder",
+          extension: "",
+          isFolder: true,
+        };
+      });
+
+      // Fusionner fichiers et dossiers
+      const filesAndFolders = await Promise.all([
+        ...filePromises,
+        ...folderPromises,
+      ]);
+
+      setFiles(filesAndFolders);
     } catch (error) {
       console.error("Error fetching files:", error);
       setError("Failed to load files.");
@@ -78,39 +106,6 @@ const FileList = () => {
       setLoading(false);
     }
   };
-
-  // const fetchFiles = async (uid: string) => {
-  //   setLoading(true);
-  //   setError(null);
-
-  //   // Référence au dossier de l'utilisateur actuel
-  //   const storageRefInstance = ref(storage, `uploads/${uid}/`);
-
-  //   try {
-  //     const result = await listAll(storageRefInstance);
-  //     const filePromises = result.items.map(async (fileRef) => {
-  //       const url = await getDownloadURL(fileRef);
-  //       const metadata = await getMetadata(fileRef);
-
-  //       const extension = fileRef.name.split(".").pop() || "unknown";
-
-  //       return {
-  //         name: fileRef.name,
-  //         url,
-  //         type: metadata.contentType || "unknown",
-  //         extension,
-  //       };
-  //     });
-
-  //     const files = await Promise.all(filePromises);
-  //     setFiles(files);
-  //   } catch (error) {
-  //     console.error("Error fetching files:", error);
-  //     setError("Failed to load files.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleRenameClick = (file: FileDetails) => {
     setFileToRename(file); // Définit le fichier à renommer
@@ -179,8 +174,22 @@ const FileList = () => {
   };
 
   const renderFilePreview = (file: FileDetails) => {
-    const mimeType = file.type;
+    if (file.isFolder) {
+      console.log("it's an folder");
+      return (
+        <div className="flex flex-col items-center">
+          <p className="text-gray-600 mt-2">{file.name}</p>
+          <img
+            src={`https://firebasestorage.googleapis.com/v0/b/my-dropbox-app-30892.appspot.com/o/uploads%2FfolderIcon.PNG?alt=media&token=63a6229a-f265-481e-87f8-5d8f77f7d6b9`}
+            alt="Folder"
+            className="w-full h-32"
+          />
+        </div>
+      );
+    }
+    // console.log(file);
 
+    const mimeType = file.type;
     if (mimeType.startsWith("image/")) {
       return (
         <img
@@ -257,6 +266,7 @@ const FileList = () => {
             setShowCreateFolderModal(false);
             fetchFiles(userId!); // Recharge les fichiers
           }}
+          setFiles={setFiles}
         />
       )}
 
@@ -271,20 +281,23 @@ const FileList = () => {
                     <div className="mb-4 w-full h-32">
                       {renderFilePreview(file)}
                     </div>
-
-                    {/* Nom du fichier */}
-                    <div className="flex flex-rows space-x-2 text-center">
-                      <a
-                        href={file.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline"
-                      >
-                        View
-                      </a>
-                      <p className="text-gray-500">Type: {file.type}</p>
-                    </div>
-
+                    {file.isFolder ? (
+                      <div>
+                        <p>FOLDER</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-rows space-x-2 text-center">
+                        <a
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          View
+                        </a>
+                        <p className="text-gray-500">Type: {file.type}</p>
+                      </div>
+                    )}
                     {/* Actions (Téléchargement et suppression) */}
                     <div className="flex space-x-2 mt-4">
                       <DownloadFile

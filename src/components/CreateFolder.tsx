@@ -1,38 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "../firebase/firebaseConfig";
 
+import { getAuth, User } from "firebase/auth";
+
+import { FileDetails } from "./FileList";
 interface CreateFolderProps {
-  currentPath: string; // Chemin actuel où créer le dossier
-  onFolderCreated: () => void; // Fonction appelée après la création du dossier
+  currentPath: string; // Chemin du dossier actuel
+  onFolderCreated: () => void; // Callback après la création
+  setFiles: React.Dispatch<React.SetStateAction<FileDetails[]>>; // Fonction pour mettre à jour la liste des fichiers
 }
 
 const CreateFolder: React.FC<CreateFolderProps> = ({
   currentPath,
   onFolderCreated,
+  setFiles,
 }) => {
   const [folderName, setFolderName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      setUserId(user.uid);
+    }
+  }, []);
 
   const handleCreateFolder = async () => {
-    if (!folderName.trim()) {
-      setError("Folder name cannot be empty.");
-      return;
-    }
+    const folderRef = ref(storage, `${currentPath}/${userId}/${folderName}/`);
 
     try {
-      // Créer un fichier vide pour simuler un dossier
-      const folderRef = ref(
-        storage,
-        `${currentPath}/${folderName}/placeholder.txt`
-      );
-      const placeholder = new Blob(["This is a placeholder file."]);
-      await uploadBytes(folderRef, placeholder);
+      // Créer un dossier en utilisant une "balise fictive"
+      const dummyFileRef = ref(folderRef, ".placeholder");
+      await uploadBytes(dummyFileRef, new Blob([""], { type: "text/plain" }));
 
-      onFolderCreated(); // Réactualiser la liste des fichiers et dossiers
+      // Ajouter immédiatement le dossier dans l'état `files`
+      setFiles((prevFiles) => [
+        ...prevFiles,
+        {
+          name: folderName,
+          url: "",
+          type: "folder",
+          extension: "",
+          isFolder: true,
+        },
+      ]);
+
+      onFolderCreated();
     } catch (error) {
       console.error("Error creating folder:", error);
-      setError("Failed to create folder. Please try again.");
     }
   };
 
