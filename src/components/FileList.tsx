@@ -207,6 +207,41 @@ const FileList = () => {
     setFiles((prevFiles) => [...prevFiles, newFile]);
   };
 
+  const handleDeleteFolder = async (folderName: string) => {
+    if (!userId) return;
+
+    let pathAfterUploads = currentPath.split("uploads/")[1];
+    if (!pathAfterUploads) {
+      pathAfterUploads = "";
+    }
+
+    const folderRef = ref(
+      storage,
+      `uploads/${userId}/${pathAfterUploads}/${folderName}`
+    );
+
+    try {
+      const folderContent = await listAll(folderRef);
+
+      // Supprimer les fichiers dans le dossier
+      const deleteFilePromises = folderContent.items.map((file) =>
+        deleteObject(file)
+      );
+
+      // Supprimer les sous-dossiers
+      const deleteFolderPromises = folderContent.prefixes.map((subFolder) =>
+        handleDeleteFolder(`${folderName}/${subFolder.name}`)
+      );
+
+      await Promise.all([...deleteFilePromises, ...deleteFolderPromises]);
+
+      console.log(`Folder "${folderName}" has been deleted.`);
+      fetchFiles(userId); // Actualiser la liste des fichiers
+    } catch (error) {
+      console.error("Error deleting folder:", error);
+    }
+  };
+
   const renderFilePreview = (file: FileDetails) => {
     if (file.isFolder) {
       console.log("it's an folder");
@@ -371,12 +406,21 @@ const FileList = () => {
                       >
                         Rename
                       </button>
-                      {userId && (
+                      {file.isFolder ? (
+                        <div className="bg-red-600   text-white rounded hover:bg-red-700 ">
+                          <button
+                            onClick={() => handleDeleteFolder(file.name)}
+                            className="bg-red-600 py-1  text-white rounded hover:bg-red-700"
+                          >
+                            Delete Folder
+                          </button>
+                        </div>
+                      ) : (
                         <DeleteFile
                           fileName={file.name}
-                          onDelete={() => fetchFiles(userId)} // Assurez-vous que userId est non null
-                          userId={userId}
                           currentPath={currentPath}
+                          userId={userId!}
+                          onDelete={() => fetchFiles(userId!)} // Rafraîchir les fichiers après suppression
                         />
                       )}
                     </div>
