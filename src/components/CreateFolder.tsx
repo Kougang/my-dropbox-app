@@ -6,8 +6,8 @@ import { getAuth, User } from "firebase/auth";
 
 import { FileDetails } from "./FileList";
 interface CreateFolderProps {
-  currentPath: string; // Chemin du dossier actuel
-  onFolderCreated: () => void; // Callback après la création
+  currentPath: string;
+  onFolderCreated: () => void;
   setFiles: React.Dispatch<React.SetStateAction<FileDetails[]>>; // Fonction pour mettre à jour la liste des fichiers
 }
 

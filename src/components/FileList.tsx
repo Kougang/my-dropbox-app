@@ -359,6 +359,7 @@ const FileList = () => {
                           fileName={file.name}
                           onDelete={() => fetchFiles(userId)} // Assurez-vous que userId est non null
                           userId={userId}
+                          currentPath={currentPath}
                         />
                       )}
                     </div>
