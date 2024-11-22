@@ -71,14 +71,18 @@ const FileUploader: React.FC<UploadFilesProps> = ({
           const url = await getDownloadURL(fileRef);
           const metadata = await getMetadata(fileRef);
 
-          // const newFile: FileDetails = {
-          //   name: file.name,
-          //   url,
-          //   type: metadata.contentType || "unknown",
-          //   extension: file.name.split(".").pop() || "unknown",
-          //   isFolder: false,
-          // };
-          // Ajouter immédiatement le dossier dans l'état `files`
+          // Vérifier si un fichier avec le même nom existe déjà
+          const existingFile = await getDownloadURL(fileRef).catch(() => null);
+
+          if (existingFile) {
+            // Un fichier avec le même nom existe, demander de renommer
+            setError(
+              `A file named "${file.name}" already exists in this folder. Please rename your file and try again.`
+            );
+            alert({ error });
+            return;
+          }
+
           setFiles((prevFiles) => [
             ...prevFiles,
             {

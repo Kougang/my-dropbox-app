@@ -396,6 +396,10 @@ const FileList = () => {
           onCancel={() => setShowRenameModal(false)}
         />
       )}
+
+      {/* {error && (
+        <div className="text-red-500 text-center mb-4"></div>
+      )} */}
     </section>
   );
 };
