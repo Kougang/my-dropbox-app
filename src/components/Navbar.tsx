@@ -7,8 +7,13 @@ import { FileDetails } from "./FileList";
 interface NavBarProps {
   currentPath: string;
   onFileUploaded: (newFile: FileDetails) => void;
+  setFiles: React.Dispatch<React.SetStateAction<FileDetails[]>>;
 }
-const Navbar: React.FC<NavBarProps> = ({ currentPath, onFileUploaded }) => {
+const Navbar: React.FC<NavBarProps> = ({
+  currentPath,
+  onFileUploaded,
+  setFiles,
+}) => {
   const [showContacts, setShowContacts] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
@@ -37,6 +42,7 @@ const Navbar: React.FC<NavBarProps> = ({ currentPath, onFileUploaded }) => {
           <FileUploader
             currentPath={currentPath}
             onFileUploaded={onFileUploaded}
+            setFiles={setFiles}
           />
         )}
         <hr />

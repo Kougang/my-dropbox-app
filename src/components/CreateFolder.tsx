@@ -29,7 +29,16 @@ const CreateFolder: React.FC<CreateFolderProps> = ({
   }, []);
 
   const handleCreateFolder = async () => {
-    const folderRef = ref(storage, `${currentPath}/${userId}/${folderName}/`);
+    let pathAfterUploads = currentPath.split("uploads/")[1];
+    if (!pathAfterUploads) {
+      pathAfterUploads = "";
+    }
+
+    // const folderRef = ref(storage, `${currentPath}/${userId}/${folderName}/`);
+    const folderRef = ref(
+      storage,
+      `uploads/${userId}/${pathAfterUploads}/${folderName}/`
+    );
 
     try {
       // Créer un dossier en utilisant une "balise fictive"

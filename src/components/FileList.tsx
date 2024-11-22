@@ -64,7 +64,16 @@ const FileList = () => {
     setLoading(true);
     setError(null);
 
-    const storageRefInstance = ref(storage, `${currentPath}/${uid}/`);
+    let pathAfterUploads = currentPath.split("uploads/")[1];
+    if (!pathAfterUploads) {
+      pathAfterUploads = "";
+    }
+
+    // const storageRefInstance = ref(storage, `${currentPath}/${uid}/`);
+    const storageRefInstance = ref(
+      storage,
+      `uploads/${uid}/${pathAfterUploads}`
+    );
 
     try {
       const result = await listAll(storageRefInstance);
@@ -185,7 +194,10 @@ const FileList = () => {
   const handleFolderClick = (folder: FileDetails) => {
     if (folder.isFolder) {
       setCurrentPath(`${currentPath}/${folder.name}`);
-      console.log("dans filelist handlefolder click", currentPath, folder.name);
+      console.log(
+        "dans filelist handlefolder click:",
+        `${currentPath}/${folder.name}`
+      );
     }
   };
 
@@ -266,7 +278,11 @@ const FileList = () => {
 
       {showNavbar && (
         <div ref={navbarRef}>
-          <Navbar currentPath={currentPath} onFileUploaded={addFileToList} />
+          <Navbar
+            currentPath={currentPath}
+            onFileUploaded={addFileToList}
+            setFiles={setFiles}
+          />
         </div>
       )}
 
@@ -284,7 +300,7 @@ const FileList = () => {
           currentPath={currentPath}
           onFolderCreated={() => {
             setShowCreateFolderModal(false);
-            fetchFiles(userId!); // Recharge les fichiers
+            //fetchFiles(userId!); // Recharge les fichiers
           }}
           setFiles={setFiles}
         />

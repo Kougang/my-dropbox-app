@@ -14,10 +14,12 @@ import { FileDetails } from "./FileList";
 interface UploadFilesProps {
   currentPath: string;
   onFileUploaded: (newFile: FileDetails) => void;
+  setFiles: React.Dispatch<React.SetStateAction<FileDetails[]>>;
 }
 const FileUploader: React.FC<UploadFilesProps> = ({
   currentPath,
   onFileUploaded,
+  setFiles,
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState<number>(0);
@@ -41,17 +43,6 @@ const FileUploader: React.FC<UploadFilesProps> = ({
     if (!pathAfterUploads) {
       pathAfterUploads = "";
     }
-    //   console.log(
-    //     "pathAfterUploads ",
-    //     pathAfterUploads,
-    //     "currentpath:",
-    //     currentPath
-    //   );
-
-    //   const storageRef = ref(
-    //     storage,
-    //     `/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`
-    //   );
 
     const fileRef = ref(
       storage,
@@ -78,18 +69,28 @@ const FileUploader: React.FC<UploadFilesProps> = ({
       async () => {
         try {
           const url = await getDownloadURL(fileRef);
-          const metadata = await getMetadata(fileRef); // Appel correct à getMetadata
+          const metadata = await getMetadata(fileRef);
 
-          const newFile: FileDetails = {
-            name: file.name,
-            url,
-            type: metadata.contentType || "unknown",
-            extension: file.name.split(".").pop() || "unknown",
-            isFolder: false,
-          };
-
+          // const newFile: FileDetails = {
+          //   name: file.name,
+          //   url,
+          //   type: metadata.contentType || "unknown",
+          //   extension: file.name.split(".").pop() || "unknown",
+          //   isFolder: false,
+          // };
+          // Ajouter immédiatement le dossier dans l'état `files`
+          setFiles((prevFiles) => [
+            ...prevFiles,
+            {
+              name: file.name,
+              url,
+              type: metadata.contentType || "unknown",
+              extension: file.name.split(".").pop() || "unknown",
+              isFolder: false,
+            },
+          ]);
           // Appel de la prop pour mettre à jour la liste des fichiers
-          onFileUploaded(newFile);
+          // onFileUploaded(newFile);
         } catch (error) {
           console.error("Error fetching file details:", error);
           setError("Failed to retrieve uploaded file details.");
@@ -102,66 +103,9 @@ const FileUploader: React.FC<UploadFilesProps> = ({
     );
   };
 
-  // const handleUpload = () => {
-  //   if (!file) {
-  //     setError("Please select a file first.");
-  //     return;
-  //   }
-
-  //   if (!currentUser) {
-  //     setError("You need to be logged in to upload files.");
-  //     return;
-  //   }
-  //   setUploading(true);
-  //   setError(null);
-
-  //   // Utilisez l'UID de l'utilisateur dans le chemin du fichier
-  //   // const storageRef = ref(storage, `uploads/${currentUser.uid}/${file.name}`);
-  //   let pathAfterUploads = currentPath.split("uploads/")[1];
-  //   if (!pathAfterUploads) {
-  //     pathAfterUploads = "";
-  //   }
-  //   console.log(
-  //     "pathAfterUploads ",
-  //     pathAfterUploads,
-  //     "currentpath:",
-  //     currentPath
-  //   );
-
-  //   const storageRef = ref(
-  //     storage,
-  //     `/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`
-  //   );
-  //   console.log(`/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`);
-
-  //   const uploadTask = uploadBytesResumable(storageRef, file);
-
-  //   uploadTask.on(
-  //     "state_changed",
-  //     (snapshot) => {
-  //       const progress = Math.round(
-  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-  //       );
-  //       setProgress(progress);
-  //     },
-
-  //     (error) => {
-  //       console.error("Upload error:", error);
-  //       setError("Failed to upload file.");
-  //       setUploading(false);
-  //     },
-  //     () => {
-  //       getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-  //         setUploading(false);
-  //         setFile(null); // Réinitialiser l'état après l'upload
-  //       });
-  //     }
-  //   );
-  // };
-
-  if (progress == 100) {
-    return <Navigate to="/" replace />;
-  }
+  // if (progress == 100) {
+  //   return <Navigate to="/" replace />;
+  // }
 
   return (
     <div className="flex flex-col items-center ">
