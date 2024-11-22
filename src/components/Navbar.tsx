@@ -3,20 +3,27 @@ import { Link } from "react-router-dom";
 import LockOut from "./LockOut/LockOut";
 import FileUploader from "./FileUploader";
 import { FileDetails } from "./FileList";
+import CreateFolder from "./CreateFolder";
 
 interface NavBarProps {
   currentPath: string;
   onFileUploaded: (newFile: FileDetails) => void;
   setFiles: React.Dispatch<React.SetStateAction<FileDetails[]>>;
+  onFolderCreated: () => void;
+  // showCreateFolderModal: boolean;
+  //setShowCreateFolderModal: React.Dispatch<React.SetStateAction<FileDetails[]>>;
 }
 const Navbar: React.FC<NavBarProps> = ({
   currentPath,
   onFileUploaded,
   setFiles,
+  onFolderCreated,
 }) => {
   const [showContacts, setShowContacts] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [showCreateFolderModal, setShowCreateFolderModal] =
+    useState<boolean>(false);
 
   const toggleContacts = () => {
     setShowContacts(!showContacts);
@@ -32,6 +39,27 @@ const Navbar: React.FC<NavBarProps> = ({
 
   return (
     <nav className="w-70 border absolute bg-slate-600">
+      <div className="min-w-40 hover:bg-slate-500 text-center">
+        <button
+          className="w-40 hover:bg-slate-500"
+          onClick={() => setShowCreateFolderModal(!showCreateFolderModal)}
+        >
+          + Create Folder
+        </button>
+        <hr />
+      </div>
+      {showCreateFolderModal && (
+        <CreateFolder
+          currentPath={currentPath}
+          onFolderCreated={() => {
+            //setShowCreateFolderModal(false);
+            //fetchFiles(userId!); // Recharge les fichiers
+          }}
+          setFiles={setFiles}
+        />
+      )}
+      <hr />
+
       <div className="min-w-40 hover:bg-slate-500 text-center">
         <button onClick={showFileUploader} className="w-40 hover:bg-slate-500">
           Upload Files

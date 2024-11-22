@@ -36,8 +36,8 @@ const FileList = () => {
   const [showRenameModal, setShowRenameModal] = useState<boolean>(false); // État pour afficher la fenêtre de renommage
   const [fileToRename, setFileToRename] = useState<FileDetails | null>(null); // Stocke le fichier à renommer
   const [currentPath, setCurrentPath] = useState<string>("uploads"); // Par défaut, dans le dossier principal
-  const [showCreateFolderModal, setShowCreateFolderModal] =
-    useState<boolean>(false);
+  // const [showCreateFolderModal, setShowCreateFolderModal] =
+  //   useState<boolean>(false);
   const [folder, setFolder] = useState<boolean>(false);
   const [folderLink, setFolderLink] = useState<string | null>("");
 
@@ -317,6 +317,8 @@ const FileList = () => {
         </button>
         <h2 className="text-lg font-bold text-center">
           Current position: <span className="text-blue-600">{folderLink}</span>
+          <hr></hr>
+          <hr></hr>
         </h2>
       </div>
 
@@ -334,20 +336,25 @@ const FileList = () => {
             currentPath={currentPath}
             onFileUploaded={addFileToList}
             setFiles={setFiles}
+            // showCreateFolderModal={showCreateFolderModal}
+            onFolderCreated={() => {
+              //setShowCreateFolderModal(false);
+              //fetchFiles(userId!); // Recharge les fichiers
+            }}
           />
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-4">
+      {/* <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => setShowCreateFolderModal(true)}
           className="btn btn-primary"
         >
           + Create Folder
         </button>
-      </div>
+      </div> */}
 
-      {showCreateFolderModal && (
+      {/* {showCreateFolderModal && (
         <CreateFolder
           currentPath={currentPath}
           onFolderCreated={() => {
@@ -356,7 +363,7 @@ const FileList = () => {
           }}
           setFiles={setFiles}
         />
-      )}
+      )} */}
 
       <div className="flex flex-rows xs:flex-col">
         <div className="grid xs:grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-6 ">

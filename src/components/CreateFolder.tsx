@@ -75,12 +75,20 @@ const CreateFolder: React.FC<CreateFolderProps> = ({
           className="input"
         />
         {error && <p className="text-red-500">{error}</p>}
-        <button onClick={handleCreateFolder} className="btn btn-primary">
-          Create
-        </button>
-        <button onClick={onFolderCreated} className="btn btn-secondary">
-          Cancel
-        </button>
+        <div className="flex flex-rows">
+          <button
+            onClick={handleCreateFolder}
+            className="bg-blue-700 text-white py-1 px-1 w-full hover:bg-blue-500"
+          >
+            Create
+          </button>
+          <button
+            onClick={onFolderCreated}
+            className="bg-red-700 text-white py-1 px-1 w-full hover:bg-red-500"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
