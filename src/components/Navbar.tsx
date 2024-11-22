@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import LockOut from "./LockOut/LockOut";
 import FileUploader from "./FileUploader";
+import { FileDetails } from "./FileList";
 
 interface NavBarProps {
   currentPath: string;
+  onFileUploaded: (newFile: FileDetails) => void;
 }
-const Navbar: React.FC<NavBarProps> = ({ currentPath }) => {
+const Navbar: React.FC<NavBarProps> = ({ currentPath, onFileUploaded }) => {
   const [showContacts, setShowContacts] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
@@ -31,7 +33,12 @@ const Navbar: React.FC<NavBarProps> = ({ currentPath }) => {
         </button>
         <hr />
 
-        {showFileUpload && <FileUploader currentPath={currentPath} />}
+        {showFileUpload && (
+          <FileUploader
+            currentPath={currentPath}
+            onFileUploaded={onFileUploaded}
+          />
+        )}
         <hr />
       </div>
 

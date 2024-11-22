@@ -65,11 +65,6 @@ const FileList = () => {
     setError(null);
 
     const storageRefInstance = ref(storage, `${currentPath}/${uid}/`);
-    // if (currentPath) {
-    //   const storageRefInstance = ref(storage, `${currentPath}`);
-    //   // console.log(storageRefInstance);
-    // }
-    // console.log("${currentPath}/${uid}/", currentPath, uid);
 
     try {
       const result = await listAll(storageRefInstance);
@@ -194,6 +189,11 @@ const FileList = () => {
     }
   };
 
+  // Zone de modification: ajouter une méthode pour ajouter le fichier nouvellement uploadé
+  const addFileToList = (newFile: FileDetails) => {
+    setFiles((prevFiles) => [...prevFiles, newFile]);
+  };
+
   const renderFilePreview = (file: FileDetails) => {
     if (file.isFolder) {
       console.log("it's an folder");
@@ -238,9 +238,9 @@ const FileList = () => {
     }
   };
 
-  if (loading) {
-    return <AppLoadScreen />;
-  }
+  // if (loading) {
+  //   return <AppLoadScreen />;
+  // }
 
   if (error) {
     return <p className="text-red-500">{error}</p>;
@@ -266,7 +266,7 @@ const FileList = () => {
 
       {showNavbar && (
         <div ref={navbarRef}>
-          <Navbar currentPath={currentPath} />
+          <Navbar currentPath={currentPath} onFileUploaded={addFileToList} />
         </div>
       )}
 
