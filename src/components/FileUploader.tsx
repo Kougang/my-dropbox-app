@@ -5,10 +5,10 @@ import {
   uploadBytesResumable,
   getDownloadURL,
   getMetadata,
+  listAll, // Import pour lister les fichiers
 } from "firebase/storage";
 
 import { getAuth } from "firebase/auth";
-import { Navigate } from "react-router-dom";
 import { FileDetails } from "./FileList";
 
 interface UploadFilesProps {
@@ -16,6 +16,7 @@ interface UploadFilesProps {
   onFileUploaded: (newFile: FileDetails) => void;
   setFiles: React.Dispatch<React.SetStateAction<FileDetails[]>>;
 }
+
 const FileUploader: React.FC<UploadFilesProps> = ({
   currentPath,
   onFileUploaded,
@@ -29,6 +30,27 @@ const FileUploader: React.FC<UploadFilesProps> = ({
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
+  // Fonction pour vérifier si un fichier existe déjà
+  const checkFileExists = async (fileName: string): Promise<boolean> => {
+    try {
+      let pathAfterUploads = currentPath.split("uploads/")[1];
+      if (!pathAfterUploads) {
+        pathAfterUploads = "";
+      }
+
+      const folderRef = ref(
+        storage,
+        `${currentPath}/${currentUser?.uid}/${pathAfterUploads}`
+      );
+
+      const listResult = await listAll(folderRef);
+      return listResult.items.some((item) => item.name === fileName);
+    } catch (error) {
+      console.error("Error checking file existence:", error);
+      return false;
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
@@ -36,8 +58,20 @@ const FileUploader: React.FC<UploadFilesProps> = ({
     }
   };
 
-  const handleFileUpload = () => {
+  const handleFileUpload = async () => {
     if (!file || !currentUser) return;
+
+    const fileName = file.name;
+
+    // Vérification avant l'upload
+    const exists = await checkFileExists(fileName);
+    if (exists) {
+      setError(`A file named "${fileName}" already exists in this folder.`);
+      alert(
+        `A file named "${fileName}" already exists in this folder. Please rename your file and try again.`
+      );
+      return;
+    }
 
     let pathAfterUploads = currentPath.split("uploads/")[1];
     if (!pathAfterUploads) {
@@ -46,7 +80,7 @@ const FileUploader: React.FC<UploadFilesProps> = ({
 
     const fileRef = ref(
       storage,
-      `${currentPath}/${currentUser.uid}/${pathAfterUploads}/${file.name}`
+      `${currentPath}/${currentUser.uid}/${pathAfterUploads}/${fileName}`
     );
     const uploadTask = uploadBytesResumable(fileRef, file);
 
@@ -71,18 +105,6 @@ const FileUploader: React.FC<UploadFilesProps> = ({
           const url = await getDownloadURL(fileRef);
           const metadata = await getMetadata(fileRef);
 
-          // Vérifier si un fichier avec le même nom existe déjà
-          const existingFile = await getDownloadURL(fileRef).catch(() => null);
-
-          if (existingFile) {
-            // Un fichier avec le même nom existe, demander de renommer
-            setError(
-              `A file named "${file.name}" already exists in this folder. Please rename your file and try again.`
-            );
-            alert({ error });
-            return;
-          }
-
           setFiles((prevFiles) => [
             ...prevFiles,
             {
@@ -93,8 +115,6 @@ const FileUploader: React.FC<UploadFilesProps> = ({
               isFolder: false,
             },
           ]);
-          // Appel de la prop pour mettre à jour la liste des fichiers
-          // onFileUploaded(newFile);
         } catch (error) {
           console.error("Error fetching file details:", error);
           setError("Failed to retrieve uploaded file details.");
@@ -106,10 +126,6 @@ const FileUploader: React.FC<UploadFilesProps> = ({
       }
     );
   };
-
-  // if (progress == 100) {
-  //   return <Navigate to="/" replace />;
-  // }
 
   return (
     <div className="flex flex-col items-center ">

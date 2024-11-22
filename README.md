@@ -55,10 +55,17 @@ After log in successfuly user can
 - **Add Download option**,
 - **Add DELETE OPTION**,
 - **Add RENAME OPTION**
+- **create directory**'
+- **manage directory**,
+- **create directory in directory or file in directory**,
+- **delete directory**,
+- **download directory**'
+-
 
 pages
 
 - **Home page**,
+- **profil page**,
 - **Contatc**,
 - **SIGN OUT**,
 
