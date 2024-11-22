@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import LockOut from "./LockOut/LockOut";
 import FileUploader from "./FileUploader";
 
-function Navbar() {
+interface NavBarProps {
+  currentPath: string;
+}
+const Navbar: React.FC<NavBarProps> = ({ currentPath }) => {
   const [showContacts, setShowContacts] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
@@ -28,7 +31,7 @@ function Navbar() {
         </button>
         <hr />
 
-        {showFileUpload && <FileUploader />}
+        {showFileUpload && <FileUploader currentPath={currentPath} />}
         <hr />
       </div>
 
@@ -62,6 +65,6 @@ function Navbar() {
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

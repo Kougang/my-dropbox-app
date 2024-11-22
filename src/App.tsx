@@ -11,7 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import LockOut from "./components/LockOut/LockOut";
 
 import ProtectedRoute from "./components/Protected/ProtectedRoute";
-import FileUploader from "./components/FileUploader";
+// import FileUploader from "./components/FileUploader";
 import FileList from "./components/FileList";
 
 function App() {
@@ -57,14 +57,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/upload"
             element={
               <ProtectedRoute user={user}>
                 <FileUploader />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/listfile"
             element={

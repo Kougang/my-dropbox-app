@@ -50,11 +50,25 @@ const FileList = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      setUserId(user.uid);
+      setCurrentUser(user);
+      fetchFiles(user.uid);
+    }
+  }, [currentPath]);
+
   const fetchFiles = async (uid: string) => {
     setLoading(true);
     setError(null);
 
     const storageRefInstance = ref(storage, `${currentPath}/${uid}/`);
+    // if (currentPath) {
+    //   const storageRefInstance = ref(storage, `${currentPath}`);
+    //   // console.log(storageRefInstance);
+    // }
     // console.log("${currentPath}/${uid}/", currentPath, uid);
 
     try {
@@ -173,6 +187,13 @@ const FileList = () => {
     }
   };
 
+  const handleFolderClick = (folder: FileDetails) => {
+    if (folder.isFolder) {
+      setCurrentPath(`${currentPath}/${folder.name}`);
+      console.log("dans filelist handlefolder click", currentPath, folder.name);
+    }
+  };
+
   const renderFilePreview = (file: FileDetails) => {
     if (file.isFolder) {
       console.log("it's an folder");
@@ -187,7 +208,6 @@ const FileList = () => {
         </div>
       );
     }
-    // console.log(file);
 
     const mimeType = file.type;
     if (mimeType.startsWith("image/")) {
@@ -246,7 +266,7 @@ const FileList = () => {
 
       {showNavbar && (
         <div ref={navbarRef}>
-          <Navbar />
+          <Navbar currentPath={currentPath} />
         </div>
       )}
 
@@ -275,10 +295,17 @@ const FileList = () => {
           {files.length > 0 ? (
             files.map((file) => (
               <li key={file.name} className="list-none">
-                <div className="bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-lg transition-shadow">
+                <div
+                  className={`bg-white shadow-md rounded-lg p-4 border ${
+                    file.isFolder ? "border-blue-200" : "border-gray-200"
+                  } border-gray-200 hover:shadow-lg transition-shadow`}
+                >
                   <div className="flex flex-col items-center">
                     {/* Prévisualisation du fichier */}
-                    <div className="mb-4 w-full h-32">
+                    <div
+                      onClick={() => handleFolderClick(file)}
+                      className="cursor-pointer mb-4 w-full h-32"
+                    >
                       {renderFilePreview(file)}
                     </div>
                     {file.isFolder ? (

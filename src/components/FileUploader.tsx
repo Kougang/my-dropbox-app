@@ -4,7 +4,10 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { Navigate } from "react-router-dom";
 
-function FileUploader() {
+interface UploadFilesProps {
+  currentPath: string;
+}
+const FileUploader: React.FC<UploadFilesProps> = ({ currentPath }) => {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -30,12 +33,45 @@ function FileUploader() {
       setError("You need to be logged in to upload files.");
       return;
     }
-
     setUploading(true);
     setError(null);
 
     // Utilisez l'UID de l'utilisateur dans le chemin du fichier
-    const storageRef = ref(storage, `uploads/${currentUser.uid}/${file.name}`);
+    // const storageRef = ref(storage, `uploads/${currentUser.uid}/${file.name}`);
+    let pathAfterUploads = currentPath.split("uploads/")[1];
+    if (!pathAfterUploads) {
+      pathAfterUploads = "";
+    }
+    console.log(
+      "pathAfterUploads ",
+      pathAfterUploads,
+      "currentpath:",
+      currentPath
+    );
+
+    const storageRef = ref(
+      storage,
+      `/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`
+    );
+    console.log(`/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`);
+
+    // if (pathAfterUploads) {
+    //   // const path = pathAfterUploads;
+    //   const storageRef = ref(
+    //     storage,
+    //     `/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`
+    //   );
+    //   console.log(
+    //     "dans sous dir",
+    //     `/uploads/${currentUser.uid}/${pathAfterUploads}/${file.name}`
+    //   );
+    // }
+    // console.log(
+    //   " /uploads/${currentUser.uid}/${pathAfterUploads}/${currentPath}/${file.name}",
+    //   "/upload",
+    //   `/uploads/${currentUser.uid}/${path}/${file.name}`
+    // );
+
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -79,6 +115,6 @@ function FileUploader() {
       </button>
     </div>
   );
-}
+};
 
 export default FileUploader;
