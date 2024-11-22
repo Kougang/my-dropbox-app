@@ -39,6 +39,7 @@ const FileList = () => {
   const [showCreateFolderModal, setShowCreateFolderModal] =
     useState<boolean>(false);
   const [folder, setFolder] = useState<boolean>(false);
+  const [folderLink, setFolderLink] = useState<string | null>("");
 
   useEffect(() => {
     const auth = getAuth();
@@ -74,7 +75,7 @@ const FileList = () => {
       storage,
       `uploads/${uid}/${pathAfterUploads}`
     );
-
+    setFolderLink(`uploads/${pathAfterUploads}`);
     try {
       const result = await listAll(storageRefInstance);
 
@@ -267,6 +268,22 @@ const FileList = () => {
       )}
 
       <h3 className="text-lg font-bold text-center">Uploaded Files</h3>
+      <div className="flex items-center space-x-4 mb-4">
+        <button
+          onClick={() => {
+            const pathParts = currentPath.split("/");
+            if (pathParts.length > 1) {
+              setCurrentPath(pathParts.slice(0, -1).join("/"));
+            }
+          }}
+          className="btn btn-secondary px-3 py-1 text-white bg-gray-500 hover:bg-gray-700 rounded"
+        >
+          Back
+        </button>
+        <h2 className="text-lg font-bold text-center">
+          Current position: <span className="text-blue-600">{folderLink}</span>
+        </h2>
+      </div>
 
       {/* Trois barres horizontales en haut à gauche */}
       <button
