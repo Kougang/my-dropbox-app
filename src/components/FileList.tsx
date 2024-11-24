@@ -14,14 +14,19 @@ import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
 import Navbar from "../components/Navbar";
 import RenameFile from "./RenameFile";
-import CreateFolder from "./CreateFolder";
-
+import PermissionsModal from "./PermissionsModal";
 export interface FileDetails {
   name: string;
   url: string;
   type: string;
   extension: string;
   isFolder: boolean;
+  permissions?: {
+    read: boolean;
+    write: boolean;
+    ownerId: string;
+    expirationDate?: string;
+  };
 }
 
 const FileList = () => {
@@ -35,11 +40,13 @@ const FileList = () => {
 
   const [showRenameModal, setShowRenameModal] = useState<boolean>(false); // État pour afficher la fenêtre de renommage
   const [fileToRename, setFileToRename] = useState<FileDetails | null>(null); // Stocke le fichier à renommer
-  const [currentPath, setCurrentPath] = useState<string>("uploads"); // Par défaut, dans le dossier principal
-  // const [showCreateFolderModal, setShowCreateFolderModal] =
-  //   useState<boolean>(false);
+  const [currentPath, setCurrentPath] = useState<string>("uploads");
   const [folder, setFolder] = useState<boolean>(false);
   const [folderLink, setFolderLink] = useState<string | null>("");
+  const [showPermissionModal, setShowPermissionModal] =
+    useState<boolean>(false);
+  const [fileForPermission, setFileForPermission] =
+    useState<FileDetails | null>(null);
 
   useEffect(() => {
     const auth = getAuth();
@@ -202,7 +209,6 @@ const FileList = () => {
     }
   };
 
-  // Zone de modification: ajouter une méthode pour ajouter le fichier nouvellement uploadé
   const addFileToList = (newFile: FileDetails) => {
     setFiles((prevFiles) => [...prevFiles, newFile]);
   };
@@ -336,34 +342,24 @@ const FileList = () => {
             currentPath={currentPath}
             onFileUploaded={addFileToList}
             setFiles={setFiles}
-            // showCreateFolderModal={showCreateFolderModal}
-            onFolderCreated={() => {
-              //setShowCreateFolderModal(false);
-              //fetchFiles(userId!); // Recharge les fichiers
-            }}
+            onFolderCreated={() => {}}
           />
         </div>
       )}
-
-      {/* <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => setShowCreateFolderModal(true)}
-          className="btn btn-primary"
-        >
-          + Create Folder
-        </button>
-      </div> */}
-
-      {/* {showCreateFolderModal && (
-        <CreateFolder
-          currentPath={currentPath}
-          onFolderCreated={() => {
-            setShowCreateFolderModal(false);
-            //fetchFiles(userId!); // Recharge les fichiers
+      {showPermissionModal && fileForPermission && (
+        <PermissionsModal
+          currentPermissions={fileForPermission.permissions}
+          onClose={() => setShowPermissionModal(false)}
+          onSave={(newPermissions) => {
+            const updatedFiles = files.map((f) =>
+              f.name === fileForPermission.name
+                ? { ...f, permissions: newPermissions }
+                : f
+            );
+            setFiles(updatedFiles);
           }}
-          setFiles={setFiles}
         />
-      )} */}
+      )}
 
       <div className="flex flex-rows xs:flex-col">
         <div className="grid xs:grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-6 ">
@@ -407,6 +403,16 @@ const FileList = () => {
                         fileName={file.name}
                         fileExtension={file.extension}
                       />
+                      {/*bouton de permissions*/}
+                      <button
+                        onClick={() => {
+                          setShowPermissionModal(true);
+                          setFileForPermission(file);
+                        }}
+                        className="bg-green-500 text-white px-2 py-1 rounded"
+                      >
+                        Permissions
+                      </button>
                       <button
                         onClick={() => handleRenameClick(file)}
                         className="bg-blue-500 text-white px-2 py-1 rounded"
@@ -417,9 +423,10 @@ const FileList = () => {
                         <div className="bg-red-600   text-white rounded hover:bg-red-700 ">
                           <button
                             onClick={() => handleDeleteFolder(file.name)}
-                            className="bg-red-600 py-1  text-white rounded hover:bg-red-700"
+                            title="Delete Folder"
+                            className="bg-red-600 py-1  px-3 text-white rounded hover:bg-red-700"
                           >
-                            Delete Folder
+                            &#x1F5D1;
                           </button>
                         </div>
                       ) : (

@@ -23,9 +23,10 @@ const DownloadFile: React.FC<DownloadFileProps> = ({
   return (
     <button
       onClick={handleDownload}
+      title="Download"
       className="bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700"
     >
-      Download
+      &#x2B07;
     </button>
   );
 };

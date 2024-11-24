@@ -55,12 +55,15 @@ After log in successfuly user can
 - **Add Download option**,
 - **Add DELETE OPTION**,
 - **Add RENAME OPTION**
+- **versionning**
+- **if image with same name exist in folder, dont sans and prind message error**
 - **create directory**'
 - **manage directory**,
 - **create directory in directory or file in directory**,
 - **delete directory**,
-- **download directory**'
--
+- **download directory**
+- **PERMISSION(read or write)**
+- **add expire date**
 
 pages
 

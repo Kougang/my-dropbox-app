@@ -39,9 +39,10 @@ const DeleteFile: React.FC<DeleteFileProps> = ({
   return (
     <button
       onClick={handleDelete}
+      title="Delete"
       className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
     >
-      Delete
+      &#x1F5D1;
     </button>
   );
 };
