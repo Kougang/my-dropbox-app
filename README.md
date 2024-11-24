@@ -62,6 +62,7 @@ After log in successfuly user can
 - **create directory in directory or file in directory**,
 - **delete directory**,
 - **download directory**
+- **show url progression in all directories**
 - **PERMISSION(read or write)**
 - **add expire date**
 
