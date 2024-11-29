@@ -58,9 +58,10 @@ const ShareLink: React.FC<ShareLinkProps> = ({ filePath, fileName }) => {
       {/* Bouton pour ouvrir la fenêtre modale */}
       <button
         onClick={() => setIsModalOpen(true)}
+        title="Share Link"
         className="bg-green-500 text-white px-2 py-1 rounded"
       >
-        Share Link
+        &#x1F517; {/* Icône de lien (🔗) */}
       </button>
 
       {/* Fenêtre modale */}

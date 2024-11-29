@@ -411,20 +411,22 @@ const FileList = () => {
                         fileName={file.name}
                       />
                       {/*bouton de permissions*/}
-                      {/* <button
+                      <button
                         onClick={() => {
                           setShowPermissionModal(true);
                           setFileForPermission(file);
                         }}
                         className="bg-green-500 text-white px-2 py-1 rounded"
+                        title="Permissions"
                       >
-                        Permissions
-                      </button> */}
+                        &#x1F6E1; {/* Icône de bouclier */}
+                      </button>
                       <button
                         onClick={() => handleRenameClick(file)}
                         className="bg-blue-500 text-white px-2 py-1 rounded"
+                        title="Rename"
                       >
-                        Rename
+                        &#x270F;
                       </button>
                       {file.isFolder ? (
                         <div className="bg-red-600   text-white rounded hover:bg-red-700 ">
