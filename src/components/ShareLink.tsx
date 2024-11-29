@@ -1,6 +1,10 @@
-// src/components/ShareLink.tsx
 import React, { useState } from "react";
-import { ref, getDownloadURL } from "firebase/storage";
+import {
+  ref,
+  getDownloadURL,
+  uploadBytes,
+  deleteObject,
+} from "firebase/storage";
 import { storage } from "../firebase/firebaseConfig";
 
 interface ShareLinkProps {
@@ -10,23 +14,51 @@ interface ShareLinkProps {
 
 const ShareLink: React.FC<ShareLinkProps> = ({ filePath, fileName }) => {
   const [shareLink, setShareLink] = useState<string | null>(null);
-  const [expiration, setExpiration] = useState<number>(60); // Expiration en minutes
+  const [expiration, setExpiration] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
 
-  const generateLink = async () => {
+  const moveFileToTemporaryFolder = async (
+    filePath: string,
+    expiration: number
+  ) => {
     try {
+      // Récupérer l'URL de téléchargement du fichier source
       const fileRef = ref(storage, filePath);
       const url = await getDownloadURL(fileRef);
 
-      // Génération d'un lien temporaire (ajout d'un timestamp pour expiration)
-      const expirationTimestamp = Date.now() + expiration * 60 * 1000;
-      const temporaryLink = `${url}?expires=${expirationTimestamp}`;
+      // Télécharger le fichier en tant que Blob
+      const response = await fetch(url);
+      const fileBlob = await response.blob();
 
-      setShareLink(temporaryLink);
+      // Définir le dossier temporaire
+      const expirationTimestamp = Date.now() + expiration * 60 * 1000;
+      const tempFolder = `sharedDocs-${expirationTimestamp}`;
+      const tempFilePath = `${tempFolder}/${fileName}`;
+      const tempFileRef = ref(storage, tempFilePath);
+
+      // Uploader le fichier dans le dossier temporaire
+      await uploadBytes(tempFileRef, fileBlob);
+
+      // Générer le lien de téléchargement pour le fichier temporaire
+      const tempUrl = await getDownloadURL(tempFileRef);
+      setShareLink(tempUrl);
+
+      // Planifier la suppression du fichier temporaire
+      setTimeout(async () => {
+        await deleteObject(tempFileRef);
+        setShareLink(null);
+        setError("The shared link has expired.");
+      }, expiration * 60 * 1000);
     } catch (error) {
-      console.error("Error generating share link:", error);
-      setError("Failed to generate share link.");
+      console.error("Error moving file to temporary folder:", error);
+      setError("Failed to move file to temporary folder.");
     }
+  };
+
+  const generateLink = async () => {
+    setError(null);
+    setShareLink(null);
+    await moveFileToTemporaryFolder(filePath, expiration);
   };
 
   return (
@@ -35,8 +67,9 @@ const ShareLink: React.FC<ShareLinkProps> = ({ filePath, fileName }) => {
         onClick={generateLink}
         className="bg-green-500 text-white px-2 py-1 rounded"
       >
-        Generate Link
+        Generate Share Link
       </button>
+
       {shareLink && (
         <div className="mt-2">
           <p>Share Link (expires in {expiration} minutes):</p>
