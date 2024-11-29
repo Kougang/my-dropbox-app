@@ -14,6 +14,8 @@ import DownloadFile from "./ActionListFile/DownloadFile";
 import AppLoadScreen from "../pages/AppLoadScreen";
 import Navbar from "../components/Navbar";
 import RenameFile from "./RenameFile";
+import ShareLink from "./ShareLink";
+
 import PermissionsModal from "./PermissionsModal";
 export interface FileDetails {
   name: string;
@@ -403,8 +405,13 @@ const FileList = () => {
                         fileName={file.name}
                         fileExtension={file.extension}
                       />
+                      {/* Nouveau composant ShareLink */}
+                      <ShareLink
+                        filePath={`uploads/${userId}/${file.name}`}
+                        fileName={file.name}
+                      />
                       {/*bouton de permissions*/}
-                      <button
+                      {/* <button
                         onClick={() => {
                           setShowPermissionModal(true);
                           setFileForPermission(file);
@@ -412,7 +419,7 @@ const FileList = () => {
                         className="bg-green-500 text-white px-2 py-1 rounded"
                       >
                         Permissions
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => handleRenameClick(file)}
                         className="bg-blue-500 text-white px-2 py-1 rounded"
