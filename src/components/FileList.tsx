@@ -50,6 +50,8 @@ const FileList = () => {
   const [fileForPermission, setFileForPermission] =
     useState<FileDetails | null>(null);
 
+  const [selectShare, SetselectShare] = useState<string>("uploads");
+
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
@@ -84,6 +86,7 @@ const FileList = () => {
       storage,
       `uploads/${uid}/${pathAfterUploads}`
     );
+    SetselectShare(`uploads/${uid}/${pathAfterUploads}`);
     setFolderLink(`uploads/${pathAfterUploads}`);
     try {
       const result = await listAll(storageRefInstance);
@@ -302,6 +305,7 @@ const FileList = () => {
     return <p className="text-red-500">{error}</p>;
   }
 
+  // console.log("current path", currentPath);
   return (
     <section className="">
       {currentUser && (
@@ -406,8 +410,12 @@ const FileList = () => {
                         fileExtension={file.extension}
                       />
                       {/* Nouveau composant ShareLink */}
-                      <ShareLink
+                      {/* <ShareLink
                         filePath={`uploads/${userId}/${file.name}`}
+                        fileName={file.name}
+                      /> */}
+                      <ShareLink
+                        filePath={`${selectShare}/${file.name}`}
                         fileName={file.name}
                       />
                       {/*bouton de permissions*/}
