@@ -256,10 +256,21 @@ const FileList = () => {
     }
   };
 
-  const handleViewVersions = async (file: FileDetails) => {
+  // const handleViewVersions = async (file: FileDetails) => {
+  //   setSelectedFile(file);
+  //   const versions = await fetchFileVersions(currentPath, file.name);
+  //   setFileVersions(versions);
+  // };
+
+  const handleViewVersions = async (
+    file: FileDetails,
+    userId: string | null
+  ) => {
     setSelectedFile(file);
-    const versions = await fetchFileVersions(currentPath, file.name);
-    setFileVersions(versions);
+    if (userId) {
+      const versions = await fetchFileVersions(currentPath, file.name);
+      setFileVersions(versions);
+    }
   };
 
   const renderFilePreview = (file: FileDetails) => {
@@ -314,7 +325,6 @@ const FileList = () => {
     return <p className="text-red-500">{error}</p>;
   }
 
-  // console.log("current path", currentPath);
   return (
     <section className="">
       {currentUser && (
@@ -418,6 +428,15 @@ const FileList = () => {
                         fileName={file.name}
                         fileExtension={file.extension}
                       />
+                      {!file.isFolder && (
+                        <button
+                          onClick={() => handleViewVersions(file, userId)}
+                          className="bg-yellow-500 text-white px-2 py-1 rounded"
+                          title="Version"
+                        >
+                          &#x23F3;
+                        </button>
+                      )}
                       {/* Nouveau composant ShareLink */}
 
                       <ShareLink
@@ -425,12 +444,6 @@ const FileList = () => {
                         fileName={file.name}
                       />
                       {/*bouton de permissions*/}
-                      <button
-                        onClick={() => handleViewVersions(file)}
-                        className="text-blue-500"
-                      >
-                        View Versions
-                      </button>
 
                       <button
                         onClick={() => {
@@ -485,6 +498,7 @@ const FileList = () => {
         />
       )}
 
+      {/*gestion des versions*/}
       {selectedFile && fileVersions.length > 0 && (
         <div className="versions-modal">
           <h3>Versions of {selectedFile.name}</h3>

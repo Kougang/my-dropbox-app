@@ -66,18 +66,8 @@ const FileUploader: React.FC<UploadFilesProps> = ({
     const versionedName = `${fileName.split(".")[0]}_${timestamp}.${file.name
       .split(".")
       .pop()}`;
-    let pathAfterUploads = currentPath.split("uploads/")[1];
-    if (!pathAfterUploads) {
-      pathAfterUploads = "";
-    }
 
     const fileRef = ref(storage, `${currentPath}/${fileName}/${versionedName}`);
-
-    const fileRef2 = ref(
-      storage,
-      `uploads/${currentUser.uid}/${pathAfterUploads}/${fileName}`
-    );
-    const uploadTask2 = uploadBytesResumable(fileRef2, file);
 
     const uploadTask = uploadBytesResumable(fileRef, file);
 
