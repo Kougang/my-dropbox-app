@@ -62,26 +62,13 @@ const FileUploader: React.FC<UploadFilesProps> = ({
     if (!file || !currentUser) return;
 
     const fileName = file.name;
+    const timestamp = new Date().toISOString();
+    const versionedName = `${fileName.split(".")[0]}_${timestamp}.${file.name
+      .split(".")
+      .pop()}`;
 
-    // Vérification avant l'upload
-    const exists = await checkFileExists(fileName);
-    if (exists) {
-      setError(`A file named "${fileName}" already exists in this folder.`);
-      alert(
-        `A file named "${fileName}" already exists in this folder. Please rename your file and try again.`
-      );
-      return;
-    }
+    const fileRef = ref(storage, `${currentPath}/${fileName}/${versionedName}`);
 
-    let pathAfterUploads = currentPath.split("uploads/")[1];
-    if (!pathAfterUploads) {
-      pathAfterUploads = "";
-    }
-
-    const fileRef = ref(
-      storage,
-      `${currentPath}/${currentUser.uid}/${pathAfterUploads}/${fileName}`
-    );
     const uploadTask = uploadBytesResumable(fileRef, file);
 
     setUploading(true);
@@ -105,27 +92,93 @@ const FileUploader: React.FC<UploadFilesProps> = ({
           const url = await getDownloadURL(fileRef);
           const metadata = await getMetadata(fileRef);
 
-          setFiles((prevFiles) => [
-            ...prevFiles,
-            {
-              name: file.name,
-              url,
-              type: metadata.contentType || "unknown",
-              extension: file.name.split(".").pop() || "unknown",
-              isFolder: false,
-            },
-          ]);
+          onFileUploaded({
+            name: fileName,
+            url,
+            type: metadata.contentType || "unknown",
+            extension: file.name.split(".").pop() || "unknown",
+            isFolder: false,
+          });
         } catch (error) {
           console.error("Error fetching file details:", error);
           setError("Failed to retrieve uploaded file details.");
         } finally {
           setUploading(false);
-          setFile(null); // Réinitialiser l'état
-          setProgress(0); // Réinitialiser la barre de progression
+          setFile(null);
+          setProgress(0);
         }
       }
     );
   };
+
+  // const handleFileUpload = async () => {
+  //   if (!file || !currentUser) return;
+
+  //   const fileName = file.name;
+
+  //   // Vérification avant l'upload
+  //   const exists = await checkFileExists(fileName);
+  //   if (exists) {
+  //     setError(`A file named "${fileName}" already exists in this folder.`);
+  //     alert(
+  //       `A file named "${fileName}" already exists in this folder. Please rename your file and try again.`
+  //     );
+  //     return;
+  //   }
+
+  //   let pathAfterUploads = currentPath.split("uploads/")[1];
+  //   if (!pathAfterUploads) {
+  //     pathAfterUploads = "";
+  //   }
+
+  //   const fileRef = ref(
+  //     storage,
+  //     `${currentPath}/${currentUser.uid}/${pathAfterUploads}/${fileName}`
+  //   );
+  //   const uploadTask = uploadBytesResumable(fileRef, file);
+
+  //   setUploading(true);
+  //   setError(null);
+
+  //   uploadTask.on(
+  //     "state_changed",
+  //     (snapshot) => {
+  //       const progress = Math.round(
+  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+  //       );
+  //       setProgress(progress);
+  //     },
+  //     (error) => {
+  //       console.error("Upload error:", error);
+  //       setError("Upload failed.");
+  //       setUploading(false);
+  //     },
+  //     async () => {
+  //       try {
+  //         const url = await getDownloadURL(fileRef);
+  //         const metadata = await getMetadata(fileRef);
+
+  //         setFiles((prevFiles) => [
+  //           ...prevFiles,
+  //           {
+  //             name: file.name,
+  //             url,
+  //             type: metadata.contentType || "unknown",
+  //             extension: file.name.split(".").pop() || "unknown",
+  //             isFolder: false,
+  //           },
+  //         ]);
+  //       } catch (error) {
+  //         console.error("Error fetching file details:", error);
+  //         setError("Failed to retrieve uploaded file details.");
+  //       } finally {
+  //         setUploading(false);
+  //         setFile(null); // Réinitialiser l'état
+  //         setProgress(0); // Réinitialiser la barre de progression
+  //       }
+  //     }
+  //   );
+  // };
 
   return (
     <div className="flex flex-col items-center ">

@@ -15,6 +15,7 @@ import AppLoadScreen from "../pages/AppLoadScreen";
 import Navbar from "../components/Navbar";
 import RenameFile from "./RenameFile";
 import ShareLink from "./ShareLink";
+import { fetchFileVersions, FileVersion } from "./FileVersionManager";
 
 import PermissionsModal from "./PermissionsModal";
 export interface FileDetails {
@@ -39,6 +40,8 @@ const FileList = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showNavbar, setShowNavbar] = useState<boolean>(false);
   const navbarRef = useRef<HTMLDivElement>(null);
+  const [selectedFile, setSelectedFile] = useState<FileDetails | null>(null);
+  const [fileVersions, setFileVersions] = useState<FileVersion[]>([]);
 
   const [showRenameModal, setShowRenameModal] = useState<boolean>(false); // État pour afficher la fenêtre de renommage
   const [fileToRename, setFileToRename] = useState<FileDetails | null>(null); // Stocke le fichier à renommer
@@ -253,6 +256,12 @@ const FileList = () => {
     }
   };
 
+  const handleViewVersions = async (file: FileDetails) => {
+    setSelectedFile(file);
+    const versions = await fetchFileVersions(currentPath, file.name);
+    setFileVersions(versions);
+  };
+
   const renderFilePreview = (file: FileDetails) => {
     if (file.isFolder) {
       console.log("it's an folder");
@@ -410,15 +419,19 @@ const FileList = () => {
                         fileExtension={file.extension}
                       />
                       {/* Nouveau composant ShareLink */}
-                      {/* <ShareLink
-                        filePath={`uploads/${userId}/${file.name}`}
-                        fileName={file.name}
-                      /> */}
+
                       <ShareLink
                         filePath={`${selectShare}/${file.name}`}
                         fileName={file.name}
                       />
                       {/*bouton de permissions*/}
+                      <button
+                        onClick={() => handleViewVersions(file)}
+                        className="text-blue-500"
+                      >
+                        View Versions
+                      </button>
+
                       <button
                         onClick={() => {
                           setShowPermissionModal(true);
@@ -470,6 +483,22 @@ const FileList = () => {
           onRename={handleRename}
           onCancel={() => setShowRenameModal(false)}
         />
+      )}
+
+      {selectedFile && fileVersions.length > 0 && (
+        <div className="versions-modal">
+          <h3>Versions of {selectedFile.name}</h3>
+          <ul>
+            {fileVersions.map((version) => (
+              <li key={version.versionName}>
+                <a href={version.url} target="_blank" rel="noopener noreferrer">
+                  {version.versionName} (
+                  {new Date(version.timestamp).toLocaleString()})
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* {error && (
